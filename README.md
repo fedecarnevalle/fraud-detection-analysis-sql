@@ -25,8 +25,16 @@ The night slot (9PM-3AM) concentrates a 2.5% fraud rate vs 0.2% during daytime �
 
 ### 3. Category Patterns
 Online categories (`_net`) are consistently riskier than in-person (`_pos`):
-- `shopping_net` has double the fraud rate of `shopping_pos` (2.3% vs 1.0%)
+- `shopping_net` has double the fraud rate of `shopping_pos` (2.3% vs 1.0%) with the highest avg fraudulent amount ($1,003)
 - `gas_transport` shows $12 avg fraudulent amount, consistent with **card testing** behavior
+
+| Category | Fraud Rate | Avg Fraud Amount |
+|----------|------------|-----------------|
+| shopping_net | 2.3% | $1,003.5 |
+| grocery_pos | 2.0% | $311.0 |
+| misc_net | 1.9% | $795.8 |
+| shopping_pos | 1.0% | $890.4 |
+| gas_transport | 0.7% | $12.2 |
 
 ### 4. Victim Profile
 - **Gender:** not a fraud predictor (0.83% F vs 0.81% M)
@@ -35,11 +43,12 @@ Online categories (`_net`) are consistently riskier than in-person (`_pos`):
 ### 5. Anomalous Behavior
 **Unusual amounts:** fraudulent transactions exceed 13x-16x the legitimate average amount of the same card.
 
-**Velocity checks:** transaction velocity is the strongest predictor identified:
+
+**Velocity checks:** Cards with 3+ transactions/hour show a fraud rate 14x higher than baseline:
 
 | Transactions/hour | Fraud rate |
 |-------------------|------------|
-| 1 | 0.55% |
+| 1 | 0.55% (baseline)|
 | 3 | 7.52% (14x baseline) |
 | 5 | 48.15% |
 | 6 | 100% |
@@ -58,10 +67,14 @@ fraud-detection-analysis/
 └── results/
     └── executive_summary.md
 ```
+## Conclusions
 
-## Conclusion
-The two most actionable signals for a real-time detection system are:
-1. **Velocity:** 3+ transactions in the last hour triggers the fraud rate 14x
-2. **Relative amount:** transactions significantly exceeding the card's historical average
+The most actionable signals for a real-time detection system are:
 
-Both signals can be implemented as rules in an alerting system or as features in a predictive model.
+1. **Velocity:** 3+ transactions/hour triggers 14x higher fraud rate (0.55% → 7.52%). At 5+, nearly 1 in 2 is fraudulent — strongest real-time signal
+2. **Relative amount:** Fraudulent transactions exceed 13x-16x the card's own legitimate average — per-card dynamic thresholds outperform fixed global limits
+3. **Night hours (9PM-3AM):** Fraud rate 5x higher than daytime, driven by volume not amount
+4. **Online categories (`_net`):** Double the fraud rate vs in-person (`_pos`) with higher avg fraudulent amounts
+5. **Card testing:** `gas_transport` avg fraudulent amount of $12 signals card verification — low-amount transactions in this category should trigger alerts
+
+Those signals can be implemented as rules in an alerting system or as features in a predictive model.
